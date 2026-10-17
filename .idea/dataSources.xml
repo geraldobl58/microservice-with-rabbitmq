@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/beautiquedb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="mssyncdb@localhost" uuid="73d42d7f-9037-4230-bda3-43fb35fb7a66">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5433/mssyncdb</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
