@@ -15,6 +15,9 @@ public class RabbitMQConfig {
    public static final String PROCEDURE_QUEUE = "procedureQueue";
    public static final String PROCEDURE_ROUTING_KEY = "procedure.#";
 
+    public static final String APPOINTMENT_QUEUE = "appointmentQueue";
+    public static final String APPOINTMENT_ROUTING_KEY = "appointment.#";
+
    @Bean
    public TopicExchange exchange() {
        return new TopicExchange(EXCHANGE_NAME, true, false);
@@ -39,4 +42,14 @@ public class RabbitMQConfig {
    public Binding procedureBinding(Queue procedureQueue, TopicExchange exchange) {
        return BindingBuilder.bind(procedureQueue).to(exchange).with(PROCEDURE_ROUTING_KEY);
    }
+
+    @Bean
+    public Queue appointmentQueue() {
+        return new Queue(APPOINTMENT_QUEUE, true);
+    }
+
+    @Bean
+    public Binding appointmentBinding(Queue appointmentQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(appointmentQueue).to(exchange).with(APPOINTMENT_ROUTING_KEY);
+    }
 }

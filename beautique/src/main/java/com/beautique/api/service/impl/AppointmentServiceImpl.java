@@ -1,7 +1,6 @@
 package com.beautique.api.service.impl;
 
-import com.beautique.api.dto.AppointmentRequestDTO;
-import com.beautique.api.dto.AppointmentResponseDTO;
+import com.beautique.api.dto.*;
 import com.beautique.api.exception.ResourceNotFoundException;
 import com.beautique.api.mapper.AppointmentMapper;
 import com.beautique.api.model.Appointment;
@@ -11,6 +10,7 @@ import com.beautique.api.repository.AppointmentRepository;
 import com.beautique.api.repository.CustomerRepository;
 import com.beautique.api.repository.ProcedureRepository;
 import com.beautique.api.service.AppointmentService;
+import com.beautique.api.service.BrokerService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +23,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final ProcedureRepository procedureRepository;
     private final CustomerRepository customerRepository;
     private final AppointmentMapper appointmentMapper;
+    private final BrokerService brokerService;
 
     @Override
     public List<AppointmentResponseDTO> findAll() {
@@ -41,6 +42,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponseDTO create(AppointmentRequestDTO appointmentRequestDTO) {
         Appointment appointment = buildAppointment(appointmentRequestDTO);
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        sendAppointment("created", savedAppointment);
+
         return appointmentMapper.toResponseDTO(savedAppointment);
     }
 
@@ -57,6 +61,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setProcedure(procedure);
 
         Appointment updatedAppointment = appointmentRepository.save(appointment);
+
+        sendAppointment("updated", updatedAppointment);
+
         return appointmentMapper.toResponseDTO(updatedAppointment);
     }
 
@@ -67,11 +74,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         appointmentRepository.deleteById(id);
-    }
-
-    @Override
-    public AppointmentResponseDTO setCustomerToAppointment(AppointmentRequestDTO appointmentRequestDTO) {
-        return null;
     }
 
     private Appointment findAppointmentById(Long id) {
@@ -96,5 +98,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setCustomer(findCustomerById(appointmentRequestDTO.customer()));
         appointment.setProcedure(findProcedureById(appointmentRequestDTO.procedure()));
         return appointment;
+    }
+
+    private void sendAppointment(String event, Appointment appointment) {
+        brokerService.send("appointment." + event, toRequestDTO(appointment));
+    }
+
+    private AppointmentMessageDTO toRequestDTO(Appointment appointment) {
+        Customer customer = appointment.getCustomer();
+        Procedure procedure = appointment.getProcedure();
+
+        return new AppointmentMessageDTO(
+                appointment.getId(),
+                appointment.getDateTime(),
+                appointment.getAppointmentOpen(),
+                new CustomerRequestDTO(
+                        customer.getId(),
+                        customer.getName(),
+                        customer.getEmail(),
+                        customer.getPhone()
+                ),
+                new ProcedureRequestDTO(
+                        procedure.getId(),
+                        procedure.getName(),
+                        procedure.getDescription(),
+                        procedure.getPrice()
+                )
+        );
     }
 }

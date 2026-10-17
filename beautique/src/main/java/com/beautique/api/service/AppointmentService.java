@@ -11,5 +11,4 @@ public interface AppointmentService {
     AppointmentResponseDTO create(AppointmentRequestDTO appointmentRequestDTO);
     AppointmentResponseDTO update(Long id, AppointmentRequestDTO appointmentRequestDTO);
     void delete(Long id);
-    AppointmentResponseDTO setCustomerToAppointment(AppointmentRequestDTO appointmentRequestDTO);
 }
