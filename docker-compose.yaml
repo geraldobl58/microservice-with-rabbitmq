@@ -18,6 +18,23 @@ services:
       retries: 20
       start_period: 30s
 
+  mssync-db:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mssyncdb
+    volumes:
+      - mssync-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d mssyncdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     ports:
@@ -37,4 +54,5 @@ services:
 
 volumes:
   beautique-data:
+  mssync-data:
   rabbitmq:
